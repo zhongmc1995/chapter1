@@ -7,6 +7,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -15,19 +16,28 @@ import java.util.Map;
  */
 public class CustomerServiceTest {
     private final CustomerService customerService;
-    public CustomerServiceTest(CustomerService customerService){
-        this.customerService = customerService;
+    public CustomerServiceTest(){
+        customerService = new CustomerService();
     }
+    /*public CustomerServiceTest(CustomerService customerService){
+        this.customerService = customerService;
+    }*/
     @Before
     public void init(){
         // TODO 初始化数据库
+        //new CustomerServiceTest(new CustomerService());
     }
 
     @Test
     public void getCustomerTest(){
         long id = 1;
         Customer customer = customerService.getCustomer(id);
+        System.out.println(customer);
         Assert.assertNotNull(customer);
+        List<Customer> customerList = customerService.getCustomerList();
+        for (Customer c : customerList){
+            System.out.println(c);
+        }
     }
 
     @Test
