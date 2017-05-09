@@ -43,9 +43,11 @@ public class CustomerServiceTest {
     @Test
     public void createCustomerTest(){
         Map<String,Object> fieldMap = new HashMap<String,Object>();
-        fieldMap.put("name","customer100");
-        fieldMap.put("contact","John");
+        fieldMap.put("name","zmc");
+        fieldMap.put("contact","Jim");
         fieldMap.put("telphone","13177898888");
+        fieldMap.put("email","zhongmc@163.com");
+
         boolean result = customerService.createCustomer(fieldMap);
         Assert.assertTrue(result);
     }
@@ -54,7 +56,8 @@ public class CustomerServiceTest {
     public void updaeCustomerTest(){
         long id = 1;
         Map<String,Object> fieldMap = new HashMap<String,Object>();
-        fieldMap.put("contact","ZMC");
+        fieldMap.put("contact","Zmc");
+        fieldMap.put("remark","普通会员");
         boolean result = customerService.updateCustomer(id,fieldMap);
         Assert.assertTrue(result);
     }

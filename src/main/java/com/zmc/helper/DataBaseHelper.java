@@ -11,6 +11,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -36,23 +37,24 @@ public final class DataBaseHelper {
         try {
             Class.forName(DRIVER);
         } catch (ClassNotFoundException e) {
-            LOGGER.error("fail load jdbc driver",e);
+            LOGGER.error("fail load jdbc driver", e);
         }
     }
 
     /**
      * 获取连接
+     *
      * @return
      */
-    public static Connection getConnection(){
+    public static Connection getConnection() {
         Connection connection = CONNECTION_HOLDER.get();
-        if(connection==null){
+        if (connection == null) {
             try {
-                connection = DriverManager.getConnection(URL,USERNAME,PASSWORD);
-            } catch (SQLException e) {
-                LOGGER.error("load jdbc driver failure",e);
-            }finally {
+                connection = DriverManager.getConnection(URL, USERNAME, PASSWORD);
                 CONNECTION_HOLDER.set(connection);
+            } catch (SQLException e) {
+                LOGGER.error("load jdbc driver failure", e);
+            } finally {
             }
         }
         return connection;
@@ -61,14 +63,14 @@ public final class DataBaseHelper {
     /**
      * 关闭连接
      */
-    public static void closeConnection(){
+    public static void closeConnection() {
         Connection connection = CONNECTION_HOLDER.get();
-        if (null!=connection){
+        if (null != connection) {
             try {
                 connection.close();
             } catch (SQLException e) {
-                LOGGER.error("close jdbc connection failure",e);
-            }finally {
+                LOGGER.error("close jdbc connection failure", e);
+            } finally {
                 CONNECTION_HOLDER.remove();
             }
         }
@@ -76,21 +78,22 @@ public final class DataBaseHelper {
 
     /**
      * 查询实体列表
+     *
      * @param entityClass
      * @param sql
      * @param objs
      * @param <T>
      * @return
      */
-    public static <T> List<T> queryEntityList(Class<T> entityClass,String sql,Object ... objs){
+    public static <T> List<T> queryEntityList(Class<T> entityClass, String sql, Object... objs) {
         Connection connection = getConnection();
         List<T> entityList = null;
         try {
-            entityList = QUERY_RUNNER.query(connection,sql,
-                    new BeanListHandler<T>(entityClass),objs);
+            entityList = QUERY_RUNNER.query(connection, sql,
+                    new BeanListHandler<T>(entityClass), objs);
         } catch (SQLException e) {
-            LOGGER.error("query entity list failure",e);
-        }finally {
+            LOGGER.error("query entity list failure", e);
+        } finally {
             closeConnection();
         }
         return entityList;
@@ -98,23 +101,106 @@ public final class DataBaseHelper {
 
     /**
      * 获取单个实体
+     *
      * @param entityClass
      * @param sql
      * @param objs
      * @param <T>
      * @return
      */
-    public static <T> T queryEntity(Class<T> entityClass,String sql,Object ... objs){
+    public static <T> T queryEntity(Class<T> entityClass, String sql, Object... objs) {
         Connection connection = getConnection();
         T entity = null;
         try {
-            entity = QUERY_RUNNER.query(connection,sql,
-                    new BeanHandler<T>(entityClass),objs);
+            entity = QUERY_RUNNER.query(connection, sql,
+                    new BeanHandler<T>(entityClass), objs);
         } catch (SQLException e) {
-            LOGGER.error("query entity list failure",e);
-        }finally {
+            LOGGER.error("query entity list failure", e);
+        } finally {
             closeConnection();
         }
         return entity;
+    }
+
+    /**
+     * 执行语句 包括（update，insert，delete）
+     *
+     * @param sql
+     * @param params
+     * @return
+     */
+    public static int executeUpdate(String sql, Object... params) {
+        int row = 0;
+        Connection conn = getConnection();
+        try {
+            row = QUERY_RUNNER.update(conn, sql, params);
+        } catch (SQLException e) {
+            LOGGER.error("execute sql failure", e);
+        }
+        return row;
+    }
+
+
+    /**
+     * 更新实体
+     *
+     * @param id
+     * @param fieldMap
+     * @return
+     */
+    public static boolean executeUpdate(Class<?> entityClass, long id, Map<String, Object> fieldMap) {
+        if (fieldMap == null && fieldMap.size() == 0) {
+            LOGGER.error("can not update entity:fieldMap is empty");
+            return false;
+        }
+        int row = 0;
+        Connection conn = getConnection();
+        StringBuffer sql = new StringBuffer("update " + getTableName(entityClass) + " set ");
+        Object[] params = new Object[fieldMap.size() + 1];
+        int cusor = 0;
+        for (Map.Entry entry : fieldMap.entrySet()) {
+            params[cusor++] = entry.getValue();
+            //sql+=entry.getKey()+"=?,";
+            sql.append(entry.getKey()).append("=?,");
+        }
+        params[cusor] = id;
+        String sqlStr = sql.substring(0, sql.length() - 1);
+        sqlStr += " where id=?";
+        row = executeUpdate(sqlStr, params);
+        return row == 1;
+    }
+
+    /**
+     * 插入实体
+     *
+     * @param entityClass
+     * @param fieldMap
+     * @return
+     */
+    public static boolean insertEntity(Class<?> entityClass, Map<String, Object> fieldMap) {
+        if (fieldMap == null && fieldMap.size() == 0) {
+            LOGGER.error("can not update entity:fieldMap is empty");
+            return false;
+        }
+        String sql = "insert into " + getTableName(entityClass);
+        StringBuffer columns = new StringBuffer("(");
+        StringBuffer values = new StringBuffer("(");
+        for (Map.Entry entry : fieldMap.entrySet()) {
+            columns.append(entry.getKey()).append(",");
+            values.append("?,");
+        }
+        columns.replace(columns.lastIndexOf(","), columns.length(), ")");
+        values.replace(values.lastIndexOf(","), values.length(), ")");
+        sql += columns + " values " + values;
+        return executeUpdate(sql, fieldMap.values().toArray()) == 1;
+    }
+
+    public static boolean deleteEntity(Class<?> entityClass, long id) {
+        String sql = "delete from " + getTableName(entityClass) + " where id = ?";
+        return executeUpdate(sql, id) == 1;
+    }
+
+    public static String getTableName(Class<? extends Object> entity) {
+        return entity.getSimpleName();
     }
 }
