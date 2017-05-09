@@ -30,7 +30,7 @@ public class CustomerServiceTest {
 
     @Test
     public void getCustomerTest(){
-        long id = 1;
+        long id = 2;
         Customer customer = customerService.getCustomer(id);
         System.out.println(customer);
         Assert.assertNotNull(customer);
@@ -54,7 +54,7 @@ public class CustomerServiceTest {
 
     @Test
     public void updaeCustomerTest(){
-        long id = 1;
+        long id = 2;
         Map<String,Object> fieldMap = new HashMap<String,Object>();
         fieldMap.put("contact","Zmc");
         fieldMap.put("remark","普通会员");

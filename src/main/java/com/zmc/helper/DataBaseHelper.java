@@ -96,6 +96,14 @@ public final class DataBaseHelper {
         } finally {
             closeConnection();
         }
+        String paramsValues = "[ ";
+        if (null!=objs){
+            for (Object o : objs){
+                paramsValues+=o+",";
+            }
+        }
+        paramsValues = paramsValues.substring(0,paramsValues.length() - 1)+" ]";
+        LOGGER.info("execute sql: "+sql+" params: "+ paramsValues);
         return entityList;
     }
 
@@ -119,6 +127,14 @@ public final class DataBaseHelper {
         } finally {
             closeConnection();
         }
+        String paramsValues = "[ ";
+        if (null!=objs){
+            for (Object o : objs){
+                paramsValues+=o+",";
+            }
+        }
+        paramsValues = paramsValues.substring(0,paramsValues.length() - 1)+" ]";
+        LOGGER.info("execute sql: "+sql+" params: "+ paramsValues);
         return entity;
     }
 
@@ -136,7 +152,17 @@ public final class DataBaseHelper {
             row = QUERY_RUNNER.update(conn, sql, params);
         } catch (SQLException e) {
             LOGGER.error("execute sql failure", e);
+        } finally {
+            closeConnection();
         }
+        String paramsValues = "[ ";
+        if (null!=params){
+            for (Object o : params){
+                paramsValues+=o+",";
+            }
+        }
+        paramsValues = paramsValues.substring(0,paramsValues.length() - 1)+" ]";
+        LOGGER.info("execute sql: "+sql+" params: "+ paramsValues);
         return row;
     }
 
