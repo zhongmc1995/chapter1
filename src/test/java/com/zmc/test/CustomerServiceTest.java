@@ -1,10 +1,13 @@
 package com.zmc.test;
 
+import com.zmc.helper.DataBaseHelper;
 import com.zmc.model.Customer;
 import com.zmc.service.CustomerService;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.List;
@@ -15,6 +18,7 @@ import java.util.Map;
  * CustomerService 测试
  */
 public class CustomerServiceTest {
+    private final static Logger LOGGER = LoggerFactory.getLogger(CustomerServiceTest.class);
     private final CustomerService customerService;
     public CustomerServiceTest(){
         customerService = new CustomerService();
@@ -25,7 +29,7 @@ public class CustomerServiceTest {
     @Before
     public void init(){
         // TODO 初始化数据库
-        //new CustomerServiceTest(new CustomerService());
+        DataBaseHelper.executeSqlFile("src/main/resources/sql/customer.sql");
     }
 
     @Test

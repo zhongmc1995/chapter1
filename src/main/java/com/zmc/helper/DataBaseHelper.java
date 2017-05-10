@@ -1,14 +1,18 @@
 package com.zmc.helper;
 
 import com.zmc.utils.PropsUtil;
+import org.apache.commons.dbcp2.BasicDataSource;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.handlers.BeanHandler;
 import org.apache.commons.dbutils.handlers.BeanListHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
@@ -25,20 +29,25 @@ public final class DataBaseHelper {
     private final static String USERNAME;
     private final static String PASSWORD;
     private final static QueryRunner QUERY_RUNNER = new QueryRunner();
+    private final static BasicDataSource DATA_SOURCE = new BasicDataSource();
     //保证线程安全
     private final static ThreadLocal<Connection> CONNECTION_HOLDER = new ThreadLocal<Connection>();
-
     static {
         Properties properties = PropsUtil.loadProps("config.properties");
         DRIVER = properties.getProperty("jdbc.driver");
         URL = properties.getProperty("jdbc.url");
         USERNAME = properties.getProperty("jdbc.user");
         PASSWORD = properties.getProperty("jdbc.password");
-        try {
+
+        DATA_SOURCE.setDriverClassName(DRIVER);
+        DATA_SOURCE.setUrl(URL);
+        DATA_SOURCE.setUsername(USERNAME);
+        DATA_SOURCE.setPassword(PASSWORD);
+        /*try {
             Class.forName(DRIVER);
         } catch (ClassNotFoundException e) {
             LOGGER.error("fail load jdbc driver", e);
-        }
+        }*/
     }
 
     /**
@@ -50,7 +59,8 @@ public final class DataBaseHelper {
         Connection connection = CONNECTION_HOLDER.get();
         if (connection == null) {
             try {
-                connection = DriverManager.getConnection(URL, USERNAME, PASSWORD);
+                //connection = DriverManager.getConnection(URL, USERNAME, PASSWORD);
+                connection = DATA_SOURCE.getConnection();
                 CONNECTION_HOLDER.set(connection);
             } catch (SQLException e) {
                 LOGGER.error("load jdbc driver failure", e);
@@ -136,6 +146,7 @@ public final class DataBaseHelper {
         paramsValues = paramsValues.substring(0,paramsValues.length() - 1)+" ]";
         LOGGER.info("execute sql: "+sql+" params: "+ paramsValues);
         return entity;
+
     }
 
     /**
@@ -224,6 +235,30 @@ public final class DataBaseHelper {
     public static boolean deleteEntity(Class<?> entityClass, long id) {
         String sql = "delete from " + getTableName(entityClass) + " where id = ?";
         return executeUpdate(sql, id) == 1;
+    }
+
+    public static void executeSqlFile(String path){
+        BufferedReader reader = null;
+        try {
+            reader = new BufferedReader(
+                    new InputStreamReader(
+                            new FileInputStream(path)));
+            String sql ;
+            while ((sql = reader.readLine()) != null){
+                DataBaseHelper.executeUpdate(sql);
+            }
+        } catch (Exception e) {
+            LOGGER.error("execute sql failure",e);
+            throw new RuntimeException(e);
+        }finally {
+            if (null != reader)
+                try {
+                    reader.close();
+                } catch (IOException e) {
+                    LOGGER.error("close reader failure",e);
+                    throw new RuntimeException(e);
+                }
+        }
     }
 
     public static String getTableName(Class<? extends Object> entity) {

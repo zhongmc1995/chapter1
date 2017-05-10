@@ -44,7 +44,7 @@ public final class PropsUtil {
     }
 
     /**
-     * 获取key对应的value
+     * 获取key对应的 string value
      * @param properties
      * @param key
      * @return
@@ -54,17 +54,17 @@ public final class PropsUtil {
     }
 
     /**
-     * 获取key对应的value
+     * 获取key对应的 string value
      * @param properties
      * @param key
-     * @param defalutValue
+     * @param defaultValue
      * @return
      */
-    public static String getString(Properties properties,String key,String defalutValue){
+    public static String getString(Properties properties,String key,String defaultValue){
         if (properties.containsKey(key)){
             return properties.getProperty(key);
         }
-        return defalutValue;
+        return defaultValue;
     }
 
     /**
@@ -105,13 +105,13 @@ public final class PropsUtil {
      * 获取key对应的boolean value
      * @param properties
      * @param key
-     * @param defalutValue
+     * @param defaultValue
      * @return
      */
-    public static boolean getBoolean(Properties properties,String key,boolean defalutValue){
+    public static boolean getBoolean(Properties properties,String key,boolean defaultValue){
         if (properties.containsKey(key)){
             return CastUtil.castBoolean(properties.get(key));
         }
-        return defalutValue;
+        return defaultValue;
     }
 }
