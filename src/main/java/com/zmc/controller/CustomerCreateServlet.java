@@ -1,5 +1,7 @@
 package com.zmc.controller;
 
+import com.zmc.service.CustomerService;
+
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -18,6 +20,17 @@ import java.io.IOException;
  */
 @WebServlet("/customer_create")
 public class CustomerCreateServlet extends HttpServlet {
+    private CustomerService customerService;
+
+    /**
+     *
+     * @throws ServletException
+     */
+    @Override
+    public void init() throws ServletException {
+        customerService = new CustomerService();
+    }
+
     /**
      * 跳转创建客户页面
      * @param req
@@ -27,7 +40,7 @@ public class CustomerCreateServlet extends HttpServlet {
      */
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        // TODO
+        // TODO 自定义页面
     }
 
     /**
@@ -39,7 +52,7 @@ public class CustomerCreateServlet extends HttpServlet {
      */
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        // TODO
+        // TODO 自定义页面
     }
 
 }

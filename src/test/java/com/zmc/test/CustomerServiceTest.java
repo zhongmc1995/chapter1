@@ -72,4 +72,15 @@ public class CustomerServiceTest {
         boolean result = customerService.deleteCustomer(id);
         Assert.assertTrue(result);
     }
+
+
+    @Test
+    public void test(){
+        System.out.println(Math.round(11.5d));
+        System.out.println(Math.round(-11.6d));
+        System.out.println(Math.floor(-11.3));
+        String s1 = "a";
+        String s2 = new String("a");
+        System.out.println(s1==s2);
+    }
 }
