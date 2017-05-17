@@ -23,6 +23,8 @@ public class FileUploadServlet extends HttpServlet {
         OutputStream out = new FileOutputStream("src/upload.txt");
         Object username = req.getAttribute("username");
         String username1 = req.getParameter("username");
+        System.out.println(username);
+        System.out.println(username1);
         Map<String, String[]> parameterMap = req.getParameterMap();
         System.out.println(parameterMap.size());
         for (Map.Entry e : parameterMap.entrySet()){
